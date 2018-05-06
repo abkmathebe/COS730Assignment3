@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+    <title>"Reporting"</title>
+    <script src="libraries/js/angular.min.js"></script>
+    <script src="libraries/js/jquery-3.2.1.min.js"></script>
+    <script src="libraries/js/angular-route.min.js"></script>
+    <script src="libraries/oi.select/dist/select-tpls.min.js"></script>
+    <script src="libraries/bower_components/ng-file-model/ng-file-model.min.js"></script>
+
+    <link rel="stylesheet" href="libraries/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <script src="libraries/popper.min.js"></script>
+    <script src="libraries/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="node_modules\chart.js\dist\Chart.js"></script>
+
+    <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway"> 
+
+    <link href="libraries/css/w3.css" rel=stylesheet /><link>
+    <link href="libraries/oi.select/dist/select.css" rel=stylesheet /><link>
+    
+    <!--To ensure proper rendering and touch zooming-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.8/angular-material.min.css">
+
+    <link href="libraries/css/styles.css" rel=stylesheet /><link>
+</head>
+
+<body id="body">
+      <h1>Page with basic chat.js example</h1>  
+
+      <canvas id="myChart" width="200" height="200"></canvas>
+
+
+
+</body>
+
+<script>
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255,99,132,1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        }
+    });
+    </script>
+    
+
+
+</html>

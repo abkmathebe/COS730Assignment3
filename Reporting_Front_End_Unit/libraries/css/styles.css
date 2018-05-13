@@ -1,3 +1,7 @@
-#body #myChart{
-    width: 100px;
+#chartList{
+    margin: 0px auto;
+}
+
+.heading{
+    text-align: center;
 }

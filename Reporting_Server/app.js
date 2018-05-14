@@ -7,7 +7,7 @@ var cors = require('cors');
 
 app.use(cors());
 
-var url = "mongodb://localhost:27017/reportingDB";
+var url = "mongodb://mongo:27017/reportingDB";
 
 // MongoClient.connect(url, function(err, db) {
 //     if (err) throw err;

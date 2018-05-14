@@ -6,7 +6,7 @@ var cors = require('cors');
 
 router.use(cors());
 
-var url = "mongodb://localhost:27017/reportingDB";
+var url = "mongodb://mongo:27017/reportingDB";
  var myParser = require("body-parser");
 //var app = express();
 /*

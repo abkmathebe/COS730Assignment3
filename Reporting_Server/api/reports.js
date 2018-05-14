@@ -188,4 +188,29 @@ router.get('/getBenchmark', (req, res, next) => {
     });
 });
 
+
+/*
+    This service adds the benchmark data
+*/
+router.post('/addBenchmark', (req, res, next) => {
+
+    MongoClient.connect(url, function(err, db) {
+        if (err) throw err;
+        var dbo = db.db("reportingDB");
+
+
+
+        dbo.collection("reports").insertOne(req.result, function(err, res) {
+          if (err) throw err;
+          console.log("1 document inserted");
+          db.close();
+        });
+    });
+
+
+    res.status(200).json({
+        message: "succesfully added records to db"
+    });
+});
+
 module.exports = router;

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const MongoClient = require('mongodb');
 const ObjectId = require('mongodb').ObjectId; 
+var cors = require('cors');
+
+router.use(cors());
 
 var url = "mongodb://localhost:27017/reportingDB";
  var myParser = require("body-parser");
@@ -9,6 +12,7 @@ var url = "mongodb://localhost:27017/reportingDB";
 /*
     This service should return a list of available benchmarks saved in the database
 */
+
 router.use(myParser.urlencoded({extended : true}));
 router.post('/getBenchmarksById', (req, res, next) => {
 
@@ -25,7 +29,7 @@ router.post('/getBenchmarksById', (req, res, next) => {
             if (err) throw err;
             console.log(result);
             res.status(200).json({
-                data: result
+                result: result
             });
             db.close();
           });
@@ -92,6 +96,73 @@ router.post('/saveBenchmarkBulk', (req, res, next) => {
     });
 });
 
+var myobject = {
+    "result": [
+        {
+            "taskID":3,
+            "dispatcher": "Kudzai",
+            "result": [
+                {
+                    "messurement": "CPU-Usage",
+                    "values": [
+                        {"Timestamp": "20:00:01", "value": "26"},
+                        {"Timestamp": "20:00:02", "value": "32"},
+                        {"Timestamp": "20:00:03", "value": "54"},
+                        {"Timestamp": "20:00:04", "value": "67"}
+                    ]
+                },
+                {
+                    "messurement": "Memory-Usage",
+                    "values": [
+                        {"Timestamp": "20:00:01", "value": "536870912"},
+                        {"Timestamp": "20:00:02", "value": "502273915"},
+                        {"Timestamp": "20:00:03", "value": "405678617"},
+                        {"Timestamp": "20:00:04", "value": "498429513"}
+                    ]
+                }
+            ]
+        },
+        {
+            "taskID":4,
+            "dispatcher": "Kudzai",
+            "result": [
+                {
+                    "messurement": "CPU-Usage",
+                    "values": [
+                        {"Timestamp": "17:00:01", "value": "45"},
+                        {"Timestamp": "17:00:02", "value": "42"},
+                        {"Timestamp": "17:00:03", "value": "56"},
+                        {"Timestamp": "17:00:04", "value": "54"}
+                    ]
+                },
+                {
+                    "messurement": "Memory-Usage",
+                    "values": [
+                        {"Timestamp": "20:00:01", "value": "506870912"},
+                        {"Timestamp": "20:00:02", "value": "532273915"},
+                        {"Timestamp": "20:00:03", "value": "495678617"},
+                        {"Timestamp": "20:00:04", "value": "408429513"}
+                    ]
+                }
+            ]
+        },
+        {
+            "taskID":5,
+            "dispatcher": "Kudzai",
+            "result": [
+                {
+                    "messurement": "CPU-Usage",
+                    "values": [
+                        {"Timestamp": "17:00:01", "value": "65"},
+                        {"Timestamp": "17:00:02", "value": "56"},
+                        {"Timestamp": "17:00:03", "value": "41"},
+                        {"Timestamp": "17:00:04", "value": "73"}
+                    ]
+                }
+            ]
+        }
+    ]
+};
 
 /*
     This service gets the benchmark raw data from execution team
@@ -102,34 +173,9 @@ router.get('/getBenchmark', (req, res, next) => {
         if (err) throw err;
         var dbo = db.db("reportingDB");
 
-        var myobj = {};
-        myobj.result = [];
 
-        var task = {};
-        task.taskID = 3;
-        task.dispatcher = "Kudzai";
-        task.result = [{
-            "measurement":"CPU-Usage",
-            "values":[
-                {"Timestamp" : "20;00:01", "value":"45"},
-                {"Timestamp" : "20;00:02", "value":"42"},
-                {"Timestamp" : "20;00:03", "value":"56"},
-                {"Timestamp" : "20;00:04", "value":"54"}
-            ]
-        },
-        {
-        "measurement":"Memory-Usage",
-        "values":[
-            {"Timestamp" : "20;00:01", "value":"45234234"},
-            {"Timestamp" : "20;00:02", "value":"4223423424"},
-            {"Timestamp" : "20;00:03", "value":"566666666"},
-            {"Timestamp" : "20;00:04", "value":"5222342344"}
-        ]
-    }
-    ];
-    myobj.result.push(task);
 
-        dbo.collection("reports").insertOne(myobj, function(err, res) {
+        dbo.collection("reports").insertOne(myobject, function(err, res) {
           if (err) throw err;
           console.log("1 document inserted");
           db.close();

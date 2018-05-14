@@ -11,8 +11,10 @@
     <link rel="stylesheet" href="libraries/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <script src="libraries/popper.min.js"></script>
     <script src="libraries/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-    <script src="node_modules\chart.js\dist\Chart.js"></script>
-
+    <script src="node_modules/chart.js/dist/Chart.js"></script>
+    <script src="libraries/html2canvas.min.js"></script>
+    <script src="libraries/canvas2blob.js"></script>
+    <script src="node_modules/file-saver/FileSaver.min.js"></script>
     <!-- <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"> -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway"> 
 
@@ -34,18 +36,30 @@
         <div class="heading">
             <h1>Task Comparisons</h1>
             <p>This page consists of charts that compare tasks by their relevant metrics</p>  
-            <button id="cmd">generate PDF</button>
+            
         </div>
 
         <div id="chartList" class="chart-container" style="position:relative; height:40vh; width:40vw">
             <canvas id="CPU-Time" width="200" height="200"></canvas>
-            <canvas id="CPU-Usage" width="200" height="200"></canvas>
+            <!-- <button id="downloadf1">generate PDF</button> -->
+            <button id="downloadf2">download image</button>
+            <canvas id="CPU-Usage" width="200" height="200">
+                
+            </canvas>
+            
             <canvas id="Elapsed-Time" width="200" height="200"></canvas>
+            <!-- <button id="downloadf3">generate PDF</button> -->
             <canvas id="Energy-Generated" width="200" height="200"></canvas>
             <canvas id="Heat-Generated" width="200" height="200"></canvas>
+            <!-- <button id="downloadf4">generate PDF</button> -->
+            <button id="downloadf5">download image</button>
             <canvas id="Memory-Usage" width="200" height="200"></canvas>
+    
         </div>
     </div>
+  
+ 
+</div>
 </body>
 
 <script>
@@ -70,82 +84,47 @@
         return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s); //+ ',' + r().toFixed(1) + ')';
     }
 
-    var serverObject = {
-        "result": [
-            {
-                "taskID":3,
-                "dispatcher": "Kudzai",
-                "result": [
-                    {
-                        "messurement": "CPU-Usage",
-                        "values": [
-                            {"Timestamp": "20:00:01", "value": "26"},
-                            {"Timestamp": "20:00:02", "value": "32"},
-                            {"Timestamp": "20:00:03", "value": "54"},
-                            {"Timestamp": "20:00:04", "value": "67"}
-                        ]
-                    },
-                    {
-                        "messurement": "Memory-Usage",
-                        "values": [
-                            {"Timestamp": "20:00:01", "value": "536870912"},
-                            {"Timestamp": "20:00:02", "value": "502273915"},
-                            {"Timestamp": "20:00:03", "value": "405678617"},
-                            {"Timestamp": "20:00:04", "value": "498429513"}
-                        ]
-                    }
-                ]
-            },
-            {
-                "taskID":4,
-                "dispatcher": "Kudzai",
-                "result": [
-                    {
-                        "messurement": "CPU-Usage",
-                        "values": [
-                            {"Timestamp": "17:00:01", "value": "45"},
-                            {"Timestamp": "17:00:02", "value": "42"},
-                            {"Timestamp": "17:00:03", "value": "56"},
-                            {"Timestamp": "17:00:04", "value": "54"}
-                        ]
-                    },
-                    {
-                        "messurement": "Memory-Usage",
-                        "values": [
-                            {"Timestamp": "20:00:01", "value": "506870912"},
-                            {"Timestamp": "20:00:02", "value": "532273915"},
-                            {"Timestamp": "20:00:03", "value": "495678617"},
-                            {"Timestamp": "20:00:04", "value": "408429513"}
-                        ]
-                    }
-                ]
-            },
-            {
-                "taskID":5,
-                "dispatcher": "Kudzai",
-                "result": [
-                    {
-                        "messurement": "CPU-Usage",
-                        "values": [
-                            {"Timestamp": "17:00:01", "value": "65"},
-                            {"Timestamp": "17:00:02", "value": "56"},
-                            {"Timestamp": "17:00:03", "value": "41"},
-                            {"Timestamp": "17:00:04", "value": "73"}
-                        ]
-                    }
-                ]
-            }
-        ]
-    };
+    $('#downloadf2').click(function(){
+        $("#CPU-Usage").get(0).toBlob(function(blob){
+            saveAs(blob, "chart_1.png")
+        });
+    });
+
+        $('#downloadf5').click(function(){
+        $("#Memory-Usage").get(0).toBlob(function(blob){
+            saveAs(blob, "chart_1.png")
+        });
+    });
+
+
+        var serverObject = {};
+
+                   $.post(
+                        "http://localhost:3000/reports/getBenchmarksById",
+                        { id :"5af9dad132b7812e543df15a"},
+                        function (data) {
+                            console.log(data);
+                            serverObject.result = data.result[0];
+                            stuff();
+                            console.log(serverObject.result);
+                        }
+                    );
+
 
     var valueList = [];
     var timeList = [];
+    
+   function stuff(){
+    serverObject.result =  serverObject.result.result;
+
     for(var z = 0; z < serverObject.result.length; ++z){
        
         for(var r = 0; r < serverObject.result[z].result.length; ++r){
 
             var timeListTemp = [];
             var valueListTemp = []; 
+
+            console.log( serverObject.result);
             for(var t = 0; t < serverObject.result[z].result[r].values.length; ++t){
 
                 timeListTemp.push(serverObject.result[z].result[r].values[t].Timestamp);
@@ -156,8 +135,13 @@
         }
     }
 
+
     console.log(timeList);
     console.log(valueList);
+
+    // html2canvas(document.querySelector("#cmdf")).then(canvas => {
+    // document.body.appendChild(canvas)
+    // });
 
     //var chartListDiv = document.getElementById("chartList");    
     var index2 = 0;
@@ -238,5 +222,12 @@
             }
         }
     }
+
+    }
+
+         
+
+            
+        
     </script>
 </html>

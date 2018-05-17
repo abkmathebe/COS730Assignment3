@@ -13,3 +13,36 @@ results
 
 node_modules
 npm-debug.log
+
+target/
+patches/
+
+# Eclipse
+/**/.settings/
+/**/build/
+*.class
+*.project
+*.classpath
+
+# Intellij
+/**/.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+/**/log/
+/**/target/
+/**/buildNumber.properties
+/**/bin/
+/**/src/assembly/merge.xml
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# Git
+*.orig

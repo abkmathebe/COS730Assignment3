@@ -99,6 +99,97 @@ public class ReportGenerator {
         }
         return null;
     }
+    
+     /*
+    public Double getAverageOfExperimentAttribute(Experiment experiment, String metric, JRBeanCollectionDataSource dataset) {
+        try {
+            if (experiment == null || dataset == null) {
+                throw new NullPointerException();
+            }
+
+            for (Result result : experiment.getResults()) {
+                if(result.getMeasurement().equals(metric)) {
+                    ArrayList<Values> valuesList = result.getValues();
+                }
+            }
+
+            Double sum = 0;
+            Double count = 0;
+            for (Value value : valuesList) {
+                sum += value.getValue();
+                // i++;
+                count++;
+            }
+            Double average = sum / count;
+            return average;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Double getStandardDeviationOfExperimentAttribute(Experiment experiment, String metric, JRBeanCollectionDataSource dataset) {
+        try {
+            Double average = getAverageOfAttribute(experiment_id, attributeName, username, dataset);
+            if (experiment == null || dataset == null || average == null) {
+                throw new NullPointerException();
+            }
+
+            for (Result result : experiment.getResults()) {
+                if(result.getMeasurement().equals(metric)) {
+                    ArrayList<Values> valuesList = result.getValues();
+                }
+            }
+
+            Double sumOfDifferenceSquared = 0;
+            Double count = 0;
+            for (Value value : valuesList) {
+                sumOfDifferenceSquared += (value.getValue() - average) * (value.getValue() - average);
+                // i++;
+                count++;
+            }
+            Double standardDeviation = Math.sqrt(sumOfDifferenceSquared / (count -1) );
+            return standardDeviation;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    } 
+    */
+    /*
+     // Add  org.apache.commons.math3.stat.inference
+     public Double getMannWhitneyU(Experiment experiment1, Experiment experiment2, String metric, JRBeanCollectionDataSource dataset) {
+        try {
+            average = getAverageOfAttribute(experiment_id, attributeName, username, dataset);
+            if (experiment1 == null || experiment2 == null || dataset == null) {
+                throw new NullPointerException();
+            }
+
+            for (Result result : experiment1.getResults()) {
+                if(result.getMeasurement().equals(metric)) {
+                    ArrayList<Values> valuesList1 = result.getValues();
+                    Double[] valuesArray1 = valuesList1.toArray(new Double[valuesList1]);
+                }
+            }
+
+            for (Result result : experiment2.getResults()) {
+                if(result.getMeasurement().equals(metric)) {
+                    ArrayList<Values> valuesList2 = result.getValues();
+                    Double[] valuesArray2 = valuesList2.toArray(new Double[valuesList2]);
+                }
+            }
+            MannWhitneyUTest test = new MannWhitneyUTest();
+            testResult = test.mannWhitneyUTest(valuesArray1, valuesArray2); // Uses org.apache.commons.math3.stat.inference 's implementation
+            return testResult;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    */
 
     public class DataBeanList {
         public ArrayList<DataBean> getDataBeanList(List<Values> values) {

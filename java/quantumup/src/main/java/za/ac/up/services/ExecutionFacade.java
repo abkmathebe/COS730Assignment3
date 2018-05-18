@@ -1,9 +1,12 @@
 package za.ac.up.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import za.ac.up.model.Experiment;
+import za.ac.up.model.Experiments;
 import za.ac.up.model.Result;
 import za.ac.up.model.Values;
 
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,10 +15,35 @@ import java.util.Random;
 @Stateless
 public class ExecutionFacade {
 
+    @Resource(name = "java:/global/env/useMock")
+    private Boolean useMock;
+
+    @Resource(name = "java:/global/env/executionUrl")
+    private String executionUrl;
+
+    private ObjectMapper MAPPER = new ObjectMapper();
+
     public Experiment getExperiment(String experimentId, String username) {
-        Experiment experiment = new Experiment(experimentId, username);
-        experiment.getResults().add(getResults(Measurement.CPU));
-        experiment.getResults().add(getResults(Measurement.MEMORY));
+        Experiment experiment = null;
+        if(useMock) {
+            experiment = new Experiment(experimentId, username);
+            experiment.getResult().add(getResults(Measurement.CPU));
+            experiment.getResult().add(getResults(Measurement.MEMORY));
+        }else
+        {
+            try {
+                Experiments experiments = MAPPER.readValue("", Experiments.class);
+                for (Experiment experiment1 : experiments.getResult()) {
+                    if (experiment1.getTaskId().equals(experimentId)) {
+                        experiment = experiment1;
+                        break;
+                    }
+                }
+            }catch (Exception e)
+            {
+                //Do nothing
+            }
+        }
 
         return experiment;
     }

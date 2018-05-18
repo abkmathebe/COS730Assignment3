@@ -22,14 +22,14 @@ import java.util.*;
 @Stateless
 public class ReportGenerator {
 
-    //    @Inject
-//    private DB db;
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+    SimpleDateFormat stf = new SimpleDateFormat("HH:mm:ss.SSS");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy HH:mm");
 
     public ByteArrayOutputStream generateReport(Experiment experiment, String metric, ChartTypes chartTypes) {
         Map parameters = new HashMap();
         parameters.put("ExperimentName", experiment.getTaskId());
         parameters.put("Username", experiment.getDispatcher());
+        parameters.put("Date", sdf.format(new Date()));
 
         InputStream sourceFile;
         switch (chartTypes) {
@@ -51,13 +51,17 @@ public class ReportGenerator {
 
         DataBeanList dataBeanList = new DataBeanList();
         List<DataBean> dataBeans = new ArrayList<>();
-        for (Result result : experiment.getResults()) {
+        StringBuilder sb = new StringBuilder(metric);
+        sb.append("-USAGE");
+        for (Result result : experiment.getResult()) {
 
-            if(result.getMeasurement().equals(metric)) {
+            if(result.getMeasurement().toUpperCase().equals(sb.toString())) {
+                int last = result.getValues().size() - 1;
                 parameters.put("measurement", result.getMeasurement());
-                parameters.put("startDate", sdf.format(result.getValues().get(0).getTimestamp()));
-                parameters.put("endDate", sdf.format(result.getValues().get(result.getValues().size() - 1).getTimestamp()));
+                parameters.put("startDate", stf.format(result.getValues().get(0).getTimestamp()));
+                parameters.put("endDate", stf.format(result.getValues().get(last).getTimestamp()));
                 dataBeans.addAll(dataBeanList.getDataBeanList(result.getValues()));
+                parameters.put("runtime", result.getValues().get(last).getTimestamp().getTime() - result.getValues().get(0).getTimestamp().getTime() + "ms");
                 break;
             }else
             {
@@ -114,7 +118,7 @@ public class ReportGenerator {
         private DataBean produce(Date timestamp, Integer value, Integer scatterX) {
             DataBean dataBean = new DataBean();
 
-            dataBean.setTimestamp(sdf.format(timestamp));
+            dataBean.setTimestamp(stf.format(timestamp));
             dataBean.setValue(value);
             dataBean.setScatterTimestamp(scatterX);
 

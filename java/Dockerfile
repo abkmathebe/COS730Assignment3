@@ -9,12 +9,6 @@ ENV JAVA_HOME /opt/jdk
 ENV PATH ${PATH}:${JAVA_HOME}/bin
 ENV POSTGRESQL_VERSION 9.4-1201-jdbc41
 
-ARG DB_HOST=postgresql
-ARG DB_NAME=campstur
-ARG DB_USER=campstur
-ARG DB_PASS=campstur
-
-
 # Install cURL, tar, and setup home directory
 RUN apk --update add curl ca-certificates tar && \
     curl -Ls https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.21-r2/glibc-2.21-r2.apk > /tmp/glibc-2.21-r2.apk && \
@@ -51,6 +45,14 @@ RUN mkdir /opt && \
        /opt/jdk/jre/lib/amd64/libjfx*.so && \
  echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
 
+ENV MAVEN_VERSION 3.5.2
+ENV MAVEN_HOME /usr/lib/mvn
+ENV PATH $MAVEN_HOME/bin:$PATH
+
+RUN wget http://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz && \
+  tar -zxvf apache-maven-$MAVEN_VERSION-bin.tar.gz && \
+  rm apache-maven-$MAVEN_VERSION-bin.tar.gz && \
+  mv apache-maven-$MAVEN_VERSION /usr/lib/mvn
 
 # Install Wildfly and add an admin user (password admin)
 RUN cd /tmp && \
@@ -66,15 +68,22 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   sleep 10 && \
   cd /tmp && \
   curl --location --output postgresql-${POSTGRESQL_VERSION}.jar --url http://search.maven.org/remotecontent?filepath=org/postgresql/postgresql/${POSTGRESQL_VERSION}/postgresql-${POSTGRESQL_VERSION}.jar && \
-  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="deploy /tmp/postgresql-${POSTGRESQL_VERSION}.jar" && \
-  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="xa-data-source add --name=reports --jndi-name=java:/jdbc/datasources/reportsDS --user-name=postgres --password=postgres --driver-name=postgresql-9.4-1201-jdbc41.jar --xa-datasource-class=org.postgresql.xa.PGXADataSource --xa-datasource-properties=ServerName=postgres,PortNumber=5432,DatabaseName=reportsDB --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-${POSTGRESQL_VERSION}.jar --dependencies=javax.api,javax.transaction.api" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="data-source add --jndi-name=java:/reportsDB --name=PostgresPool --connection-url=jdbc:postgresql://postgres:5432/reportsDB --driver-name=postgres --user-name=postgres --password=P@55w0rD" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=naming/binding=java\:global\/env\/useMock:add(binding-type=simple, type=boolean, value=true)" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=naming/binding=java\:global\/env\/executionUrl:add(binding-type=simple, type=java.lang.String, value="localhost:8080")" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
   rm -rf $JBOSS_HOME/standalone/configuration/standalone_xml_history/ $JBOSS_HOME/standalone/log/* && \
   rm /tmp/postgresql-9.4*.jar && \
   rm -rf /tmp/postgresql-*.jar
 
-ADD quantumup.war /opt/jboss/wildfly/standalone/deployments/
+#ADD ./create.sql /docker-entrypoint-initdb.d/
+
+ADD ./quantumup/. /usr/src/quantumup/
+WORKDIR /usr/src/quantumup/
+RUN mvn clean install
+RUN cp /usr/src/quantumup/target/quantumup.war /opt/jboss/wildfly/standalone/deployments/
 
 # Expose http and admin ports
 EXPOSE 8080 9990

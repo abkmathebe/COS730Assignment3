@@ -29,17 +29,17 @@ public class Experiment {
         this.dispatcher = dispatcher;
     }
 
-    public List<Result> getResults() {
-        if(results == null)
-            results = new ArrayList<>();
-        return results;
+    public List<Result> getResult() {
+        if(result == null)
+            result = new ArrayList<>();
+        return result;
     }
 
-    public void setResults(List<Result> results) {
-        this.results = results;
+    public void setResult(List<Result> result) {
+        this.result = result;
     }
 
     private String taskId;
     private String dispatcher;
-    private List<Result> results;
+    private List<Result> result;
 }

@@ -71,16 +71,17 @@ public class ExecutionFacade {
 
     private void getRandomValues(Result result, int num) {
         Date date = new Date();
-        Random generator = new Random();
         int max;
-        if(result.getMeasurement().equals("CPU-Usage"))
+        if(result.getMeasurement().contains("CPU") || result.getMeasurement().contains("cpu"))
             max = 100;
         else
             max = 100_000_000;
         while (result.getValues().size()<num)
         {
-            int i = generator.nextInt(max) + 1;
-            Values value = new Values(date, i);
+            Random r = new Random();
+            double randomValue = 0 + (max - 0) * r.nextDouble();
+            double roundOff = (double)Math.round(randomValue * 100.0) / 100.0;
+            Values value = new Values(date, roundOff);
             result.getValues().add(value);
             date = addMillisecond(date);
         }

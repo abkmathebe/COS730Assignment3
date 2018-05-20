@@ -6,7 +6,7 @@ public class Values {
     public Values() {
     }
 
-    public Values(Date timestamp, int value) {
+    public Values(Date timestamp, double value) {
         this.timestamp = timestamp;
         this.value = value;
     }
@@ -19,14 +19,14 @@ public class Values {
         this.timestamp = timestamp;
     }
 
-    public int getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(double value) {
         this.value = value;
     }
 
     private Date timestamp;
-    private int value;
+    private double value;
 }

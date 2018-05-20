@@ -74,6 +74,7 @@ public class ReportGenerator {
                 sourceFile = null;
         }
 
+        String encodedFile;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             JasperPrint jasperPrint = JasperFillManager.fillReport(sourceFile, parameters, jrBeanCollectionDataSource);
@@ -83,11 +84,10 @@ public class ReportGenerator {
             rendered_image = (BufferedImage) printManager.printPageToImage(jasperPrint, 0, 1.6f);
             ImageIO.write(rendered_image, "png", out);
 
-            String encodedfile = Base64.getEncoder().encodeToString(out.toByteArray());
-            return new ReportFile(encodedfile);
+            encodedFile = Base64.getEncoder().encodeToString(out.toByteArray());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            encodedFile = null;
         } finally {
             try {
                 sourceFile.close();
@@ -95,7 +95,12 @@ public class ReportGenerator {
                 e.printStackTrace();
             }
         }
-        return null;
+
+        if (encodedFile != null) {
+            return new ReportFile(encodedFile);
+        } else {
+            return null;
+        }
     }
 
     public class DataBeanList {
@@ -113,7 +118,7 @@ public class ReportGenerator {
          * This method returns a DataBean object, with subjectName ,
          * and marks set in it.
          */
-        private DataBean produce(Date timestamp, Integer value, Integer scatterX) {
+        private DataBean produce(Date timestamp, Double value, Integer scatterX) {
             DataBean dataBean = new DataBean();
 
             dataBean.setTimestamp(stf.format(timestamp));
@@ -126,7 +131,7 @@ public class ReportGenerator {
 
     public class DataBean {
         private String timestamp;
-        private Integer value;
+        private Double value;
         private Integer scatterTimestamp;
 
         public String getTimestamp() {
@@ -137,11 +142,11 @@ public class ReportGenerator {
             this.timestamp = timestamp;
         }
 
-        public Integer getValue() {
+        public Double getValue() {
             return value;
         }
 
-        public void setValue(Integer value) {
+        public void setValue(Double value) {
             this.value = value;
         }
 

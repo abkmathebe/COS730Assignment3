@@ -35,20 +35,26 @@ public class ReportService {
 
         List<ReportFile> encodedReports = new ArrayList<>();
         Report report = getReportByExperimentId(experimentId);
+        Boolean generated = Boolean.FALSE;
         if (report != null) {
             for (Image image : report.getCharts()) {
                 if (image.getChartTypes().equals(chartType)) {
                     encodedReports.add(new ReportFile(Base64.getEncoder().encodeToString(image.getImageAsBytea())));
                 }
             }
-        } else {
-            Experiment experiment = executionFacade.getExperiment(experimentId);
-            Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
 
-            report = new Report();
-            report.setExperimentId(experimentId);
+            if (encodedReports.size() > 0) {
+                return encodedReports;
+            }
+        }
+        Experiment experiment = executionFacade.getExperiment(experimentId);
+        Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
 
-            for (String measure : reportDocsMap.keySet()) {
+        report = new Report();
+        report.setExperimentId(experimentId);
+
+        for (String measure : reportDocsMap.keySet()) {
+            if (reportDocsMap.get(measure) != null) {
                 String encoded = reportDocsMap.get(measure).getEncodedFile();
                 Image img = new Image(measure, chartType.name());
                 img.setReport(report);
@@ -59,8 +65,8 @@ public class ReportService {
 
                 encodedReports.add(new ReportFile(encoded));
             }
-            em.persist(report);
         }
+        em.persist(report);
 
         return encodedReports;
     }

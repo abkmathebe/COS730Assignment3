@@ -1,18 +1,23 @@
 package za.ac.up.services;
 
+import org.apache.commons.io.FileUtils;
 import za.ac.up.model.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
-
-import za.ac.up.model.Report_;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 @Stateless
 public class ReportService {
@@ -26,122 +31,114 @@ public class ReportService {
     @PersistenceContext(unitName = "reports")
     private EntityManager em;
 
-    private static final String IMAGE_QUERY = "SELECT * FROM report WHERE experimentId= #experimentId";
+    public List<ReportFile> getReport(String experimentId, ChartTypes chartType) {
 
-    public ByteArrayOutputStream getReport(String username, String experimentId, String metric, String chartType) {
-        Boolean overwrite = Boolean.FALSE;
-
+        List<ReportFile> encodedReports = new ArrayList<>();
         Report report = getReportByExperimentId(experimentId);
         if (report != null) {
-            for(Image image :report.getCharts())
-            {
-                if(image.getChartTypes().equals(ChartTypes.valueOf(chartType)) && image.getMetric().equals(Metric.valueOf(metric)))
-                {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    try {
-                        out.write(image.getImageAsBytea());
-                        return out;
-                    } catch (IOException e) {
-                        //Regenerate
-                    }
+            for (Image image : report.getCharts()) {
+                if (image.getChartTypes().equals(chartType)) {
+                    encodedReports.add(new ReportFile(Base64.getEncoder().encodeToString(image.getImageAsBytea())));
                 }
             }
-        }
+        } else {
+            Experiment experiment = executionFacade.getExperiment(experimentId);
+            Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
 
-        Experiment experiment = executionFacade.getExperiment(experimentId, username);
-        ByteArrayOutputStream reportDoc = reportGenerator.generateReport(experiment, metric, ChartTypes.valueOf(chartType));
-        if (reportDoc != null) {
-            if (report != null) {
-                Image img = new Image(metric, chartType);
+            report = new Report();
+            report.setExperimentId(experimentId);
+
+            for (String measure : reportDocsMap.keySet()) {
+                String encoded = reportDocsMap.get(measure).getEncodedFile();
+                Image img = new Image(measure, chartType.name());
                 img.setReport(report);
-                img.setImageAsBytea(reportDoc.toByteArray());
+                img.setImageAsBytea(Base64.getDecoder().decode(encoded));
+                img.setChartTypes(chartType);
+                img.setMetric(measure);
                 report.getCharts().add(img);
-                em.merge(report);
-            } else {
-                report = new Report();
-                report.setExperimentId(experimentId);
-                Image img = new Image(metric, chartType);
-                img.setReport(report);
-                img.setImageAsBytea(reportDoc.toByteArray());
-                report.getCharts().add(img);
-                em.persist(report);
+
+                encodedReports.add(new ReportFile(encoded));
             }
+            em.persist(report);
         }
 
-        return reportDoc;
+        return encodedReports;
     }
 
-    public ByteArrayOutputStream textReport(String username, String experimentId, String metric, Delimiter delimiter)
-    {
-        StringBuilder metricSb = new StringBuilder(metric);
-        metricSb.append("-USAGE");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Experiment experiment = executionFacade.getExperiment(experimentId, username);
-        StringBuilder sb = new StringBuilder("");
+    public ReportFile textReport(String experimentId, Delimiter delimiter) {
 
-        sb.append("User");
-        sb.append(delimiter.getDelimiter());
-        sb.append(experiment.getDispatcher());
-        sb.append("\n");
-        sb.append("Experiment");
-        sb.append(experiment.getTaskId());
-        sb.append(delimiter.getDelimiter());
-        sb.append("\n");
+        Experiment experiment = executionFacade.getExperiment(experimentId);
 
-        for(Result result :experiment.getResult())
-        {
-            if(metricSb.toString().equalsIgnoreCase(result.getMeasurement()))
-            {
-                sb.append("User");
-                sb.append(delimiter.getDelimiter());
-                sb.append(experiment.getDispatcher());
-                sb.append("\n");
-                sb.append("Experiment");
-                sb.append(experiment.getTaskId());
-                sb.append(delimiter.getDelimiter());
-                sb.append("\n");
+        if (experiment != null) {
+            StringBuilder sb = new StringBuilder("");
+            sb.append("User");
+            sb.append(delimiter.getDelimiter());
+            sb.append(experiment.getDispatcher());
+            sb.append("\n");
+            sb.append("Experiment");
+            sb.append(delimiter.getDelimiter());
+            sb.append(experiment.getTaskId());
+            sb.append("\n");
+            sb.append("\n");
+            sb.append("\n");
+            for (Result result : experiment.getResult()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
                 sb.append("Measurement");
                 sb.append(delimiter.getDelimiter());
                 sb.append(result.getMeasurement());
                 sb.append("\n");
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
-                for(Values values :result.getValues())
-                {
+                sb.append("\n");
+                for (Values values : result.getValues()) {
                     sb.append(sdf.format(values.getTimestamp()));
                     sb.append(delimiter.getDelimiter());
                     sb.append(values.getValue());
                     sb.append("\n");
                 }
 
+                sb.append("\n");
+                sb.append("\n");
 
-                try
-                {
-                    outputStream.write(sb.toString().getBytes());
-                    outputStream.flush();
-                    outputStream.close();
-                }
-                catch(Exception e)
-                {
-                    System.out.println(e.toString());
-                }
-
-                return outputStream;
             }
+
+            File file = new File(experimentId + ".txt");
+            try {
+                FileUtils.writeStringToFile(file, sb.toString());
+                return new ReportFile(Base64.getEncoder().encodeToString(loadFile(file)));
+            } catch (IOException e) {
+                return null;
+            }
+        } else {
+            return null;
         }
 
-        return null;
     }
 
-    public void setExecutionFacade(ExecutionFacade executionFacade) {
-        this.executionFacade = executionFacade;
+    private static byte[] loadFile(File file) throws IOException {
+        byte[] bytes;
+        try (InputStream is = new FileInputStream(file)) {
+
+            long length = file.length();
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+            }
+            bytes = new byte[(int) length];
+
+            int offset = 0;
+            int numRead = 0;
+            while (offset < bytes.length
+                    && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+
+            if (offset < bytes.length) {
+                throw new IOException("Could not completely read file " + file.getName());
+            }
+
+        }
+        return bytes;
     }
 
-    public void setReportGenerator(ReportGenerator reportGenerator) {
-        this.reportGenerator = reportGenerator;
-    }
-
-    private Report getReportByExperimentId(String experimentId)
-    {
+    private Report getReportByExperimentId(String experimentId) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery(Report.class);
         Root<Report> root = cq.from(Report.class);

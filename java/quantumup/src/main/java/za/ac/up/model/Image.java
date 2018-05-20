@@ -9,7 +9,7 @@ public class Image {
 
     public Image(String metric, String chartType)
     {
-        this.metric = Metric.valueOf(metric);
+        this.metric = metric;
         this.chartTypes = ChartTypes.valueOf(chartType);
     }
     @Id
@@ -22,8 +22,7 @@ public class Image {
     private ChartTypes chartTypes;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private Metric metric;
+    private String  metric;
 
     @Column
     private byte[] imageAsBytea;
@@ -56,11 +55,11 @@ public class Image {
         this.imageAsBytea = imageAsBytea;
     }
 
-    public Metric getMetric() {
+    public String getMetric() {
         return metric;
     }
 
-    public void setMetric(Metric metric) {
+    public void setMetric(String metric) {
         this.metric = metric;
     }
 

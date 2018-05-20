@@ -23,10 +23,10 @@ public class ExecutionFacade {
 
     private ObjectMapper MAPPER = new ObjectMapper();
 
-    public Experiment getExperiment(String experimentId, String username) {
+    public Experiment getExperiment(String experimentId) {
         Experiment experiment = null;
         if(useMock) {
-            experiment = new Experiment(experimentId, username);
+            experiment = new Experiment(experimentId, "Mock User");
             experiment.getResult().add(getResults(Measurement.CPU));
             experiment.getResult().add(getResults(Measurement.MEMORY));
         }else

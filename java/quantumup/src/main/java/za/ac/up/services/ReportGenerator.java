@@ -29,6 +29,33 @@ public class ReportGenerator {
         parameters.put("Username", experiment.getDispatcher());
         parameters.put("Date", sdf.format(new Date()));
 
+        DataBeanList dataBeanList;
+        Map<String, ReportFile> reportFiles = new HashMap<>();
+
+        for (Result result : experiment.getResult()) {
+
+            dataBeanList = new DataBeanList();
+            List<DataBean> dataBeans = new ArrayList<>();
+            int last = result.getValues().size() - 1;
+            parameters.put("measurement", result.getMeasurement());
+            parameters.put("startDate", stf.format(result.getValues().get(0).getTimestamp()));
+            parameters.put("endDate", stf.format(result.getValues().get(last).getTimestamp()));
+            dataBeans.addAll(dataBeanList.getDataBeanList(result.getValues()));
+            parameters.put("runtime", result.getValues().get(last).getTimestamp().getTime() - result.getValues().get(0).getTimestamp().getTime() + "ms");
+            if (!dataBeans.isEmpty()) {
+                JRBeanCollectionDataSource beanColDataSource = new
+                        JRBeanCollectionDataSource(dataBeans, true);
+                reportFiles.put(result.getMeasurement(), generateChart(parameters, beanColDataSource, chartTypes));
+
+            }
+
+        }
+
+        return reportFiles;
+    }
+
+    public ReportFile generateChart(Map parameters, JRBeanCollectionDataSource jrBeanCollectionDataSource, ChartTypes chartTypes) {
+
         InputStream sourceFile;
         switch (chartTypes) {
             case LINE:
@@ -47,32 +74,6 @@ public class ReportGenerator {
                 sourceFile = null;
         }
 
-        DataBeanList dataBeanList;
-        Map<String, ReportFile> reportFiles = new HashMap<>();
-
-        for (Result result : experiment.getResult()) {
-
-            dataBeanList = new DataBeanList();
-            List<DataBean> dataBeans = new ArrayList<>();
-            int last = result.getValues().size() - 1;
-            parameters.put("measurement", result.getMeasurement());
-            parameters.put("startDate", stf.format(result.getValues().get(0).getTimestamp()));
-            parameters.put("endDate", stf.format(result.getValues().get(last).getTimestamp()));
-            dataBeans.addAll(dataBeanList.getDataBeanList(result.getValues()));
-            parameters.put("runtime", result.getValues().get(last).getTimestamp().getTime() - result.getValues().get(0).getTimestamp().getTime() + "ms");
-            if (!dataBeans.isEmpty()) {
-                JRBeanCollectionDataSource beanColDataSource = new
-                        JRBeanCollectionDataSource(dataBeans, true);
-                reportFiles.put(result.getMeasurement(), generateChart(parameters, beanColDataSource, sourceFile));
-
-            }
-
-        }
-
-        return reportFiles;
-    }
-
-    public ReportFile generateChart(Map parameters, JRBeanCollectionDataSource jrBeanCollectionDataSource, InputStream sourceFile) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             JasperPrint jasperPrint = JasperFillManager.fillReport(sourceFile, parameters, jrBeanCollectionDataSource);

@@ -94,10 +94,10 @@ public class ReportService {
                 sb.append(result.getMeasurement());
                 sb.append("\n");
                 sb.append("\n");
-                for (Values values : result.getValues()) {
-                    sb.append(sdf.format(values.getTimestamp()));
+                for (ResultValue resultValue : result.getValues()) {
+                    sb.append(sdf.format(resultValue.getTimestamp()));
                     sb.append(delimiter.getDelimiter());
-                    sb.append(values.getValue());
+                    sb.append(resultValue.getValue());
                     sb.append("\n");
                 }
 

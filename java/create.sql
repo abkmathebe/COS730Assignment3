@@ -1,7 +1,8 @@
 CREATE TABLE report (
     id int primary key NOT NULL,
-    experimentId varchar(50) NOT NULL
+    experimentId varchar(50) NOT NULL UNIQUE
 );
+
 
 CREATE TABLE image (
     id int primary key NOT NULL,
@@ -11,4 +12,42 @@ CREATE TABLE image (
     imageAsBytea bytea NOT NULL
 );
 
-CREATE SEQUENCE hibernate_sequence START 1;
+
+CREATE TABLE experiment (
+    id int primary key NOT NULL,
+    taskid varchar(50) NOT NULL UNIQUE,
+    dispatcher varchar(50) NOT NULL
+);
+
+
+CREATE TABLE result (
+    id int primary key NOT NULL,
+    measurement varchar(50) NOT NULL
+);
+
+
+CREATE TABLE resultvalue (
+    id int primary key NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    value FLOAT NOT NULL
+);
+
+
+CREATE SEQUENCE report_sequence START 1;
+CREATE SEQUENCE image_sequence START 1;
+CREATE SEQUENCE experiment_sequence START 1;
+CREATE SEQUENCE result_sequence START 1;
+CREATE SEQUENCE resultvalue_sequence START 1;
+
+
+CREATE TABLE experiment_result(
+    experiment_id int NOT NULL references experiment(id),
+    result_id int NOT NULL references result(id)
+)
+
+;
+CREATE TABLE result_value(
+    result_id int NOT NULL references result(id),
+    value_id int NOT NULL references resultvalue(id)
+)
+;

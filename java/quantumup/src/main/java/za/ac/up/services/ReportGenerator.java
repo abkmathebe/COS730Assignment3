@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -104,11 +103,11 @@ public class ReportGenerator {
     }
 
     public class DataBeanList {
-        public ArrayList<DataBean> getDataBeanList(List<Values> values) {
+        public ArrayList<DataBean> getDataBeanList(List<ResultValue> resultValues) {
             ArrayList<DataBean> dataBeanList = new ArrayList<DataBean>();
             int i = 0;
-            for (Values value : values) {
-                dataBeanList.add(produce(value.getTimestamp(), value.getValue(), i));
+            for (ResultValue resultValue : resultValues) {
+                dataBeanList.add(produce(resultValue.getTimestamp(), resultValue.getValue(), i));
                 i++;
             }
             return dataBeanList;

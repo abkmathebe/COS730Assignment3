@@ -1,8 +1,10 @@
 package za.ac.up.model;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Experiment {
 
     public Experiment() {
@@ -11,6 +13,14 @@ public class Experiment {
     public Experiment(String taskId, String dispatcher) {
         this.taskId = taskId;
         this.dispatcher = dispatcher;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTaskId() {
@@ -30,7 +40,7 @@ public class Experiment {
     }
 
     public List<Result> getResult() {
-        if(result == null)
+        if (result == null)
             result = new ArrayList<>();
         return result;
     }
@@ -39,7 +49,17 @@ public class Experiment {
         this.result = result;
     }
 
+    @Id
+    @GeneratedValue(generator = "experiment_sequence")
+    @SequenceGenerator(name = "experiment_sequence", sequenceName = "experiment_sequence", allocationSize = 1)
+    @Column
+    private int id;
+    @Column
     private String taskId;
+    @Column
     private String dispatcher;
+    @JoinTable(name = "experiment_result", joinColumns = @JoinColumn(name = "experiment_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "result_id", referencedColumnName = "id"))
+    @OneToMany(cascade=CascadeType.ALL)
     private List<Result> result;
 }

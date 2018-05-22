@@ -6,8 +6,10 @@ import java.util.List;
 
 @Entity
 public class Report {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "report_sequence")
+    @SequenceGenerator(name = "report_sequence", sequenceName = "report_sequence", allocationSize = 1)
     @Column
     private int id;
 

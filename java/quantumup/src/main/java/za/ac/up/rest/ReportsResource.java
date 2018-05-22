@@ -2,7 +2,9 @@ package za.ac.up.rest;
 
 import za.ac.up.model.ChartTypes;
 import za.ac.up.model.Delimiter;
+import za.ac.up.model.Experiment;
 import za.ac.up.model.ReportFile;
+import za.ac.up.services.ExecutionFacade;
 import za.ac.up.services.ReportService;
 
 import javax.ejb.EJB;
@@ -18,6 +20,9 @@ public class ReportsResource {
 
     @EJB
     private ReportService reportService;
+
+    @EJB
+    private ExecutionFacade executionFacade;
 
     @GET
     @Path("/data")
@@ -47,6 +52,21 @@ public class ReportsResource {
             return Response.status(200).entity(report).build();
         } else {
             return Response.status(400).entity("No measurements for metric").build();
+        }
+    }
+
+    @POST
+    @Path("/store")
+    @Produces({MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_JSON})
+    public Response storeReport(Experiment experiment) {
+        try
+        {
+            executionFacade.storeReport(experiment);
+            return Response.status(200).entity(Boolean.TRUE).build();
+        }catch (Exception e)
+        {
+            return Response.status(400).entity(Boolean.FALSE).build();
         }
     }
 }

@@ -71,7 +71,7 @@ RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-${POSTGRESQL_VERSION}.jar --dependencies=javax.api,javax.transaction.api" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="data-source add --jndi-name=java:/reportsDB --name=PostgresPool --connection-url=jdbc:postgresql://postgres:5432/reportsDB --driver-name=postgres --user-name=postgres --password=P@55w0rD" && \
-  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=naming/binding=java\:global\/env\/useMock:add(binding-type=simple, type=boolean, value=true)" && \
+  $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=naming/binding=java\:global\/env\/useMock:add(binding-type=simple, type=boolean, value=false)" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=naming/binding=java\:global\/env\/executionUrl:add(binding-type=simple, type=java.lang.String, value="localhost:8080")" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command=:shutdown && \
   rm -rf $JBOSS_HOME/standalone/configuration/standalone_xml_history/ $JBOSS_HOME/standalone/log/* && \

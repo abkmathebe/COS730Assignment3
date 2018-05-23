@@ -51,25 +51,27 @@ public class ReportService {
             }
         }
         Experiment experiment = executionFacade.getExperiment(experimentId);
-        Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
+        if(experiment != null) {
+            Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
 
-        report = new Report();
-        report.setExperimentId(experimentId);
+            report = new Report();
+            report.setExperimentId(experimentId);
 
-        for (String measure : reportDocsMap.keySet()) {
-            if (reportDocsMap.get(measure) != null) {
-                String encoded = reportDocsMap.get(measure).getEncodedFile();
-                Image img = new Image(measure, chartType.name());
-                img.setReport(report);
-                img.setImageAsBytea(Base64.getDecoder().decode(encoded));
-                img.setChartTypes(chartType);
-                img.setMetric(measure);
-                report.getCharts().add(img);
+            for (String measure : reportDocsMap.keySet()) {
+                if (reportDocsMap.get(measure) != null) {
+                    String encoded = reportDocsMap.get(measure).getEncodedFile();
+                    Image img = new Image(measure, chartType.name());
+                    img.setReport(report);
+                    img.setImageAsBytea(Base64.getDecoder().decode(encoded));
+                    img.setChartTypes(chartType);
+                    img.setMetric(measure);
+                    report.getCharts().add(img);
 
-                encodedReports.add(new ReportFile(encoded));
+                    encodedReports.add(new ReportFile(encoded));
+                }
             }
+            em.persist(report);
         }
-        em.persist(report);
 
         return encodedReports;
     }
@@ -78,6 +80,7 @@ public class ReportService {
 
         Experiment experiment = executionFacade.getExperiment(experimentId);
 
+        File file = new File(experimentId + ".txt");
         if (experiment != null) {
             StringBuilder sb = new StringBuilder("");
             sb.append("User");
@@ -108,7 +111,6 @@ public class ReportService {
 
             }
 
-            File file = new File(experimentId + ".txt");
             try {
                 FileUtils.writeStringToFile(file, sb.toString());
                 return new ReportFile(Base64.getEncoder().encodeToString(loadFile(file)));
@@ -116,7 +118,12 @@ public class ReportService {
                 return null;
             }
         } else {
-            return null;
+            try {
+                FileUtils.writeStringToFile(file, "TaskiId  " + experimentId + " not found");
+                return new ReportFile(Base64.getEncoder().encodeToString(loadFile(file)));
+            } catch (IOException e) {
+                return null;
+            }
         }
 
     }

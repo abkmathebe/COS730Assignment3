@@ -13,7 +13,8 @@ public class Image {
         this.chartTypes = ChartTypes.valueOf(chartType);
     }
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "image_sequence")
+    @SequenceGenerator(name = "image_sequence", sequenceName = "image_sequence", allocationSize = 1)
     @Column
     private int id;
 

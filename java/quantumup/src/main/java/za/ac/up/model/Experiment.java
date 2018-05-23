@@ -10,8 +10,8 @@ public class Experiment {
     public Experiment() {
     }
 
-    public Experiment(String taskId, String dispatcher) {
-        this.taskId = taskId;
+    public Experiment(String taskID, String dispatcher) {
+        this.taskID = taskID;
         this.dispatcher = dispatcher;
     }
 
@@ -23,12 +23,12 @@ public class Experiment {
         this.id = id;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getTaskID() {
+        return taskID;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setTaskID(String taskID) {
+        this.taskID = taskID;
     }
 
     public String getDispatcher() {
@@ -55,7 +55,7 @@ public class Experiment {
     @Column
     private int id;
     @Column
-    private String taskId;
+    private String taskID;
     @Column
     private String dispatcher;
     @JoinTable(name = "experiment_result", joinColumns = @JoinColumn(name = "experiment_id", referencedColumnName = "id"),

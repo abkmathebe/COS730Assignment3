@@ -13,7 +13,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -106,7 +105,7 @@ public class ReportService {
             sb.append("\n");
             sb.append("Experiment");
             sb.append(delimiter.getDelimiter());
-            sb.append(experiment.getTaskId());
+            sb.append(experiment.getTaskID());
             sb.append("\n");
             sb.append("\n");
             sb.append("\n");

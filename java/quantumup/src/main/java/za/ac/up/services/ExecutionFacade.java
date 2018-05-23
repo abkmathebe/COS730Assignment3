@@ -105,7 +105,7 @@ public class ExecutionFacade {
         CriteriaQuery cq = cb.createQuery(Experiment.class);
         Root<Experiment> root = cq.from(Experiment.class);
 
-        cq.where(cb.equal(root.get(Experiment_.taskId), experimentId));
+        cq.where(cb.equal(root.get(Experiment_.taskID), experimentId));
         cq.select(root);
 
         Experiment currency = null;

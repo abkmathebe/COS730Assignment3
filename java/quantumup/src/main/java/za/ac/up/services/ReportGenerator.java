@@ -28,7 +28,7 @@ public class ReportGenerator {
 
     public Map<String, ReportFile> generateReport(Experiment experiment, ChartTypes chartTypes) {
         Map parameters = new HashMap();
-        parameters.put("ExperimentName", experiment.getTaskId());
+        parameters.put("ExperimentName", experiment.getTaskID());
         parameters.put("Username", experiment.getDispatcher());
         parameters.put("Date", sdf.format(new Date()));
 

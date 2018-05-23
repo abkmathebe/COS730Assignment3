@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 @Converter(autoApply = true)
 public class LocalTimeAttributeConverter implements AttributeConverter<LocalTime, String> {
 
-    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");;
+    private final DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_TIME;
     @Override
     public String convertToDatabaseColumn(LocalTime locDate) {
         return (locDate == null ? null : dtf.format(locDate));

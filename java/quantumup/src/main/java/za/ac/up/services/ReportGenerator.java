@@ -23,7 +23,7 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 @Stateless
 public class ReportGenerator {
 
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss S");
+    DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_TIME;
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy HH:mm");
 
     public Map<String, ReportFile> generateReport(Experiment experiment, ChartTypes chartTypes) {

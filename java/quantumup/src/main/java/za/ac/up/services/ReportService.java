@@ -51,26 +51,43 @@ public class ReportService {
             }
         }
         Experiment experiment = executionFacade.getExperiment(experimentId);
-        if(experiment != null) {
+        if (experiment != null) {
             Map<String, ReportFile> reportDocsMap = reportGenerator.generateReport(experiment, chartType);
 
-            report = new Report();
-            report.setExperimentId(experimentId);
+            if (report == null) {
+                report = new Report();
+                report.setExperimentId(experimentId);
+                for (String measure : reportDocsMap.keySet()) {
+                    if (reportDocsMap.get(measure) != null) {
+                        String encoded = reportDocsMap.get(measure).getEncodedFile();
+                        Image img = new Image(measure, chartType.name());
+                        img.setReport(report);
+                        img.setImageAsBytea(Base64.getDecoder().decode(encoded));
+                        img.setChartTypes(chartType);
+                        img.setMetric(measure);
+                        report.getCharts().add(img);
 
-            for (String measure : reportDocsMap.keySet()) {
-                if (reportDocsMap.get(measure) != null) {
-                    String encoded = reportDocsMap.get(measure).getEncodedFile();
-                    Image img = new Image(measure, chartType.name());
-                    img.setReport(report);
-                    img.setImageAsBytea(Base64.getDecoder().decode(encoded));
-                    img.setChartTypes(chartType);
-                    img.setMetric(measure);
-                    report.getCharts().add(img);
-
-                    encodedReports.add(new ReportFile(encoded));
+                        encodedReports.add(new ReportFile(encoded));
+                    }
                 }
+                em.persist(report);
+            } else {
+                for (String measure : reportDocsMap.keySet()) {
+                    if (reportDocsMap.get(measure) != null) {
+                        String encoded = reportDocsMap.get(measure).getEncodedFile();
+                        Image img = new Image(measure, chartType.name());
+                        img.setReport(report);
+                        img.setImageAsBytea(Base64.getDecoder().decode(encoded));
+                        img.setChartTypes(chartType);
+                        img.setMetric(measure);
+                        report.getCharts().add(img);
+
+                        encodedReports.add(new ReportFile(encoded));
+                    }
+                }
+                em.merge(report);
             }
-            em.persist(report);
+
         }
 
         return encodedReports;

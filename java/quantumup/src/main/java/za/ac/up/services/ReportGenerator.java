@@ -14,12 +14,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 @Stateless
 public class ReportGenerator {
 
-    SimpleDateFormat stf = new SimpleDateFormat("HH:mm:ss.SSS");
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyy HH:mm");
 
     public Map<String, ReportFile> generateReport(Experiment experiment, ChartTypes chartTypes) {
@@ -37,10 +41,8 @@ public class ReportGenerator {
             List<DataBean> dataBeans = new ArrayList<>();
             int last = result.getValues().size() - 1;
             parameters.put("measurement", result.getMeasurement());
-            parameters.put("startDate", stf.format(result.getValues().get(0).getTimestamp()));
-            parameters.put("endDate", stf.format(result.getValues().get(last).getTimestamp()));
             dataBeans.addAll(dataBeanList.getDataBeanList(result.getValues()));
-            parameters.put("runtime", result.getValues().get(last).getTimestamp().getTime() - result.getValues().get(0).getTimestamp().getTime() + "ms");
+            parameters.put("runtime", result.getValues().get(0).getTimestamp().until(result.getValues().get(last).getTimestamp(), MILLIS) + "ms");
             if (!dataBeans.isEmpty()) {
                 JRBeanCollectionDataSource beanColDataSource = new
                         JRBeanCollectionDataSource(dataBeans, true);
@@ -117,10 +119,10 @@ public class ReportGenerator {
          * This method returns a DataBean object, with subjectName ,
          * and marks set in it.
          */
-        private DataBean produce(Date timestamp, Double value, Integer scatterX) {
+        private DataBean produce(LocalTime timestamp, Double value, Integer scatterX) {
             DataBean dataBean = new DataBean();
 
-            dataBean.setTimestamp(stf.format(timestamp));
+            dataBean.setTimestamp(dtf.format(timestamp));
             dataBean.setValue(value);
             dataBean.setScatterTimestamp(scatterX);
 

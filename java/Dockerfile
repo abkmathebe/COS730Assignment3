@@ -7,7 +7,7 @@ ENV JAVA_VERSION_MINOR 171
 ENV JAVA_VERSION_BUILD 17
 ENV JAVA_HOME /opt/jdk
 ENV PATH ${PATH}:${JAVA_HOME}/bin
-ENV POSTGRESQL_VERSION 9.4-1201-jdbc41
+ENV POSTGRESQL_VERSION 9.4-1201-jdbc42
 
 # Install cURL, tar, and setup home directory
 RUN apk --update add curl ca-certificates tar && \
@@ -67,7 +67,7 @@ RUN cd /tmp && \
 RUN /bin/sh -c '$JBOSS_HOME/bin/standalone.sh &' && \
   sleep 10 && \
   cd /tmp && \
-  curl --location --output postgresql-${POSTGRESQL_VERSION}.jar --url http://search.maven.org/remotecontent?filepath=org/postgresql/postgresql/${POSTGRESQL_VERSION}/postgresql-${POSTGRESQL_VERSION}.jar && \
+  curl --location --output postgresql-${POSTGRESQL_VERSION}.jar --url https://jdbc.postgresql.org/download/postgresql-42.2.2.jar && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="module add --name=org.postgres --resources=/tmp/postgresql-${POSTGRESQL_VERSION}.jar --dependencies=javax.api,javax.transaction.api" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)" && \
   $JBOSS_HOME/bin/jboss-cli.sh --connect --command="data-source add --jndi-name=java:/reportsDB --name=PostgresPool --connection-url=jdbc:postgresql://postgres:5432/reportsDB --driver-name=postgres --user-name=postgres --password=P@55w0rD" && \

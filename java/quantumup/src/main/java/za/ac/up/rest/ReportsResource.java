@@ -1,9 +1,6 @@
 package za.ac.up.rest;
 
-import za.ac.up.model.ChartTypes;
-import za.ac.up.model.Delimiter;
-import za.ac.up.model.Experiment;
-import za.ac.up.model.ReportFile;
+import za.ac.up.model.*;
 import za.ac.up.services.ExecutionFacade;
 import za.ac.up.services.ReportService;
 
@@ -59,14 +56,15 @@ public class ReportsResource {
     @Path("/store")
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response storeReport(Experiment experiment) {
+    public Response storeReport(StoreRequest experiment) {
+        StoreResponse response;
         try
         {
-            executionFacade.storeReport(experiment);
-            return Response.status(200).entity(Boolean.TRUE).build();
+            response = executionFacade.storeReports(experiment);
+            return Response.status(200).entity(response).build();
         }catch (Exception e)
         {
-            return Response.status(400).entity(Boolean.FALSE).build();
+            return Response.status(400).entity(new StoreResponse(Boolean.FALSE, e.getMessage())).build();
         }
     }
 }

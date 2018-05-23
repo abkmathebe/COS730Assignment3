@@ -1,14 +1,16 @@
 package za.ac.up.model;
 
 import javax.persistence.*;
-import java.util.Date;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.LocalTime;
+import com.migesok.jaxb.adapter.javatime.LocalTimeXmlAdapter;
 
 @Entity
 public class ResultValue {
     public ResultValue() {
     }
 
-    public ResultValue(Date timestamp, double value) {
+    public ResultValue(LocalTime timestamp, double value) {
         this.timestamp = timestamp;
         this.value = value;
     }
@@ -21,11 +23,11 @@ public class ResultValue {
         this.id = id;
     }
 
-    public Date getTimestamp() {
+    public LocalTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(LocalTime timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -43,8 +45,8 @@ public class ResultValue {
     @Column
     private int id;
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date timestamp;
+    @XmlJavaTypeAdapter(LocalTimeXmlAdapter.class)
+    private LocalTime timestamp;
     @Column
     private double value;
 }

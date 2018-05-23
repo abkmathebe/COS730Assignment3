@@ -28,7 +28,7 @@ CREATE TABLE result (
 
 CREATE TABLE resultvalue (
     id int primary key NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
+    timestamp varchar(50) NOT NULL,
     value FLOAT NOT NULL
 );
 

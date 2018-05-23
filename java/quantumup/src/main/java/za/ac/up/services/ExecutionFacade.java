@@ -1,9 +1,7 @@
 package za.ac.up.services;
 
-import za.ac.up.model.Experiment;
-import za.ac.up.model.Experiment_;
-import za.ac.up.model.Result;
-import za.ac.up.model.ResultValue;
+import org.jfree.data.time.Millisecond;
+import za.ac.up.model.*;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
@@ -14,9 +12,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
+
+import static java.time.temporal.ChronoUnit.MILLIS;
 
 @Stateless
 public class ExecutionFacade {
@@ -41,9 +42,15 @@ public class ExecutionFacade {
         return experiment;
     }
 
-    public void storeReport(Experiment experiment)
+    public StoreResponse storeReports(StoreRequest storeRequest)
     {
-        em.persist(experiment);
+        for (int i = 0; i < storeRequest.getResult().size(); i++){
+            em.persist(storeRequest.getResult().get(i));
+        }
+        StoreResponse response = new StoreResponse();
+        response.setSuccessful(Boolean.TRUE);
+
+        return response;
     }
 
     private enum Measurement {
@@ -68,7 +75,7 @@ public class ExecutionFacade {
     }
 
     private void getRandomValues(Result result, int num) {
-        Date date = new Date();
+        LocalTime date = LocalTime.now();
         int max;
         if(result.getMeasurement().contains("CPU") || result.getMeasurement().contains("cpu"))
             max = 100;
@@ -81,7 +88,7 @@ public class ExecutionFacade {
             double roundOff = (double)Math.round(randomValue * 100.0) / 100.0;
             ResultValue resultValue = new ResultValue(date, roundOff);
             result.getValues().add(resultValue);
-            date = addMillisecond(date);
+            date = date.plus(1, MILLIS);
         }
     }
 

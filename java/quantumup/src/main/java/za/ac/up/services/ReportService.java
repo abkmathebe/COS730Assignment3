@@ -14,6 +14,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -88,7 +89,7 @@ public class ReportService {
             sb.append("\n");
             sb.append("\n");
             for (Result result : experiment.getResult()) {
-                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss.SSS");
+                DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss");;
                 sb.append("Measurement");
                 sb.append(delimiter.getDelimiter());
                 sb.append(result.getMeasurement());

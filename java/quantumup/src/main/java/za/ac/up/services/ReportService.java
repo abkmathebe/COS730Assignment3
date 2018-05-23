@@ -29,6 +29,8 @@ public class ReportService {
     @EJB
     private ReportGenerator reportGenerator;
 
+    private final DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_TIME;
+
     @PersistenceContext(unitName = "reports")
     private EntityManager em;
 
@@ -89,14 +91,13 @@ public class ReportService {
             sb.append("\n");
             sb.append("\n");
             for (Result result : experiment.getResult()) {
-                DateTimeFormatter sdf = DateTimeFormatter.ofPattern("HH:mm:ss");;
                 sb.append("Measurement");
                 sb.append(delimiter.getDelimiter());
                 sb.append(result.getMeasurement());
                 sb.append("\n");
                 sb.append("\n");
                 for (ResultValue resultValue : result.getValues()) {
-                    sb.append(sdf.format(resultValue.getTimestamp()));
+                    sb.append(dtf.format(resultValue.getTimestamp()));
                     sb.append(delimiter.getDelimiter());
                     sb.append(resultValue.getValue());
                     sb.append("\n");
